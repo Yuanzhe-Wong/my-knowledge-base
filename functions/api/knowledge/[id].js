@@ -127,4 +127,4 @@ export async function onRequestDelete({ env, params }) {
     success: true,
     id
   });
-}s
+}

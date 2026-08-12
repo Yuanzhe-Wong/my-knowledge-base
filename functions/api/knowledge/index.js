@@ -40,7 +40,9 @@ export async function onRequestPost(context) {
     const title = String(body.title || "").trim();
     const content = String(body.content || "").trim();
     const category = String(body.category || "").trim();
-    const tags = Array.isArray(body.tags) ? body.tags : [];
+    const tags = Array.isArray(body.tags)
+  ? body.tags.join(",")
+  : String(body.tags || "").trim();
 
     if (!title || !content) {
       return Response.json(
@@ -60,7 +62,7 @@ export async function onRequestPost(context) {
         title,
         content,
         category,
-        JSON.stringify(tags)
+        tags
       )
       .run();
 
