@@ -1,0 +1,7 @@
+name = "my-knowledge-base"
+compatibility_date = "2026-08-12"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "knowledge-db"
+database_id = "8c8f2c7f-8a6b-451c-a318-7b7e82dc0b8c"
