@@ -34,3 +34,38 @@ button:hover {
   margin-top: 20px;
   color: #374151;
 }
+#search-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 20px 0;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.note-card {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.note-card h2 {
+  margin-top: 0;
+}
+
+.note-type {
+  color: #2563eb;
+  font-size: 14px;
+}
+
+.tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 4px 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 4px;
+  font-size: 13px;
+}

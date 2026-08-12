@@ -1,17 +1,41 @@
 import './style.css'
+import { notes } from './data/notes.js'
 
-const button = document.querySelector('#hello-button')
-const result = document.querySelector('#result')
+const searchInput = document.querySelector('#search-input')
+const notesList = document.querySelector('#notes-list')
 
-button.addEventListener('click', async () => {
-  result.textContent = '正在请求后端...'
+function renderNotes(keyword = '') {
+  const normalizedKeyword = keyword.toLowerCase().trim()
 
-  try {
-    const response = await fetch('/api/hello')
-    const data = await response.json()
+  const filteredNotes = notes.filter((note) => {
+    const text = [
+      note.title,
+      note.type,
+      note.summary,
+      ...note.tags
+    ].join(' ').toLowerCase()
 
-    result.textContent = data.message
-  } catch (error) {
-    result.textContent = '请求后端失败：' + error.message
-  }
+    return text.includes(normalizedKeyword)
+  })
+
+  notesList.innerHTML = filteredNotes
+    .map((note) => {
+      return `
+        <article class="note-card">
+          <h2>${note.title}</h2>
+          <p class="note-type">${note.type}</p>
+          <p>${note.summary}</p>
+          <div>
+            ${note.tags.map((tag) => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+        </article>
+      `
+    })
+    .join('')
+}
+
+searchInput.addEventListener('input', (event) => {
+  renderNotes(event.target.value)
 })
+
+renderNotes()
