@@ -1,7 +1,5 @@
-export function onRequestGet() {
+export function onRequest() {
   return Response.json({
-    success: true,
-    message: '后端 API 工作正常！',
-    time: new Date().toISOString()
+    message: '你好，Cloudflare Functions！'
   })
 }
