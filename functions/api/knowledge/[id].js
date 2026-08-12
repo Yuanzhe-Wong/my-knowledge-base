@@ -1,124 +1,130 @@
-function getId(context) {
-  return Number(context.params.id);
-}
-
-export async function onRequestGet(context) {
-  const { env } = context;
-  const id = getId(context);
-
-  const result = await env.DB.prepare(`
-    SELECT *
-    FROM knowledge
-    WHERE id = ?1
-  `)
-    .bind(id)
-    .first();
-
-  if (!result) {
-    return Response.json(
-      {
-        success: false,
-        error: "知识不存在"
-      },
-      { status: 404 }
-    );
-  }
-
-  return Response.json({
-    success: true,
-    data: result
+function json(data, status = 200) {
+  return Response.json(data, {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    }
   });
 }
 
-export async function onRequestPut(context) {
-  const { request, env } = context;
-  const id = getId(context);
+// GET /api/knowledge/1
+// 获取一条知识
+export async function onRequestGet({ env, params }) {
+  const id = Number(params.id);
 
-  try {
-    const body = await request.json();
-
-    const title = String(body.title || "").trim();
-    const content = String(body.content || "").trim();
-    const category = String(body.category || "").trim();
-    const tags = Array.isArray(body.tags) ? body.tags : [];
-
-    if (!title || !content) {
-      return Response.json(
-        {
-          success: false,
-          error: "标题和内容不能为空"
-        },
-        { status: 400 }
-      );
-    }
-
-    const result = await env.DB.prepare(`
-      UPDATE knowledge
-      SET
-        title = ?1,
-        content = ?2,
-        category = ?3,
-        tags = ?4,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?5
-    `)
-      .bind(
-        title,
-        content,
-        category,
-        JSON.stringify(tags),
-        id
-      )
-      .run();
-
-    if (result.meta.changes === 0) {
-      return Response.json(
-        {
-          success: false,
-          error: "知识不存在"
-        },
-        { status: 404 }
-      );
-    }
-
-    return Response.json({
-      success: true,
-      message: "修改成功"
-    });
-  } catch (error) {
-    return Response.json(
-      {
-        success: false,
-        error: error.message
-      },
-      { status: 500 }
-    );
+  if (!Number.isInteger(id)) {
+    return json({
+      success: false,
+      error: "无效的 id"
+    }, 400);
   }
+
+  const item = await env.DB.prepare(`
+    SELECT id, title, content, category, tags, created_at, updated_at
+    FROM knowledge
+    WHERE id = ?
+  `).bind(id).first();
+
+  if (!item) {
+    return json({
+      success: false,
+      error: "记录不存在"
+    }, 404);
+  }
+
+  return json({
+    success: true,
+    data: item
+  });
 }
 
-export async function onRequestDelete(context) {
-  const { env } = context;
-  const id = getId(context);
+// PUT /api/knowledge/1
+// 修改一条知识
+export async function onRequestPut({ env, params, request }) {
+  const id = Number(params.id);
+
+  if (!Number.isInteger(id)) {
+    return json({
+      success: false,
+      error: "无效的 id"
+    }, 400);
+  }
+
+  let body;
+
+  try {
+    body = await request.json();
+  } catch {
+    return json({
+      success: false,
+      error: "请求体必须是 JSON"
+    }, 400);
+  }
+
+  const title = String(body.title || "").trim();
+  const content = String(body.content || "").trim();
+  const category = String(body.category || "").trim();
+  const tags = String(body.tags || "").trim();
+
+  if (!title || !content) {
+    return json({
+      success: false,
+      error: "title 和 content 不能为空"
+    }, 400);
+  }
 
   const result = await env.DB.prepare(`
-    DELETE FROM knowledge
-    WHERE id = ?1
+    UPDATE knowledge
+    SET
+      title = ?,
+      content = ?,
+      category = ?,
+      tags = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
   `)
-    .bind(id)
+    .bind(title, content, category, tags, id)
     .run();
 
   if (result.meta.changes === 0) {
-    return Response.json(
-      {
-        success: false,
-        error: "知识不存在"
-      },
-      { status: 404 }
-    );
+    return json({
+      success: false,
+      error: "记录不存在"
+    }, 404);
   }
 
-  return Response.json({
+  return json({
     success: true,
-    message: "删除成功"
+    id
   });
 }
+
+// DELETE /api/knowledge/1
+// 删除一条知识
+export async function onRequestDelete({ env, params }) {
+  const id = Number(params.id);
+
+  if (!Number.isInteger(id)) {
+    return json({
+      success: false,
+      error: "无效的 id"
+    }, 400);
+  }
+
+  const result = await env.DB.prepare(`
+    DELETE FROM knowledge
+    WHERE id = ?
+  `).bind(id).run();
+
+  if (result.meta.changes === 0) {
+    return json({
+      success: false,
+      error: "记录不存在"
+    }, 404);
+  }
+
+  return json({
+    success: true,
+    id
+  });
+}s
