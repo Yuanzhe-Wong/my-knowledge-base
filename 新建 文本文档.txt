@@ -1,0 +1,10 @@
+To access your new D1 Database in your Worker, add the following snippet to your configuration file:
+{
+  "d1_databases": [
+    {
+      "binding": "knowledge_db",
+      "database_name": "knowledge-db",
+      "database_id": "8c8f2c7f-8a6b-451c-a318-7b7e82dc0b8c"
+    }
+  ]
+}
